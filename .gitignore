@@ -1,0 +1,14 @@
+
+*.dll
+
+bin/Debug/Newtonsoft.Json.Schema.xml
+
+bin/Debug/Newtonsoft.Json.xml
+
+*.exe
+
+*.pdb
+
+*.cache
+
+obj/x86/Debug/recipeParser.csproj.FileListAbsolute.txt
