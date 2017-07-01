@@ -1,21 +1,112 @@
-using System; using System.Collections.Generic; using System.IO; using System.Linq; using System.Text; using System.Net; using Newtonsoft.Json; using Newtonsoft.Json.Linq; using System.Text.RegularExpressions; using recipeParser.Classes;  namespace recipeParser {      public class MainClass     {          public static AcceptableUnits acceptableUnitsObj;          public static void Main(string[] args)         {              acceptableUnitsObj = new AcceptableUnits();              List<Recipe> newRecipeList = new List<Recipe>();             readFromFile(newRecipeList, 1075);              printQuantity(newRecipeList); 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Net;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
+using recipeParser.Classes;
+
+namespace recipeParser
+{
+
+    public class MainClass
+    {
+
+        public static AcceptableUnits acceptableUnitsObj;
+
+        public static void Main(string[] args)
+        {
+
+            acceptableUnitsObj = new AcceptableUnits();
+
+            List<Recipe> newRecipeList = new List<Recipe>();
+            readFromFile(newRecipeList, 1075);
+
+            printQuantity(newRecipeList);
+
             //Create Unit List for analysis
-            List<resultPiece> unitList = new List<resultPiece>();             printAndCreateUnitList(newRecipeList, unitList);              List<resultPiece> ingredientList = new List<resultPiece>();             printIngredients(newRecipeList, ingredientList);             printPreparation(newRecipeList);
-             /*
+            List<resultPiece> unitList = new List<resultPiece>();
+            printAndCreateUnitList(newRecipeList, unitList);
+
+            List<resultPiece> ingredientList = new List<resultPiece>();
+            printIngredients(newRecipeList, ingredientList);
+            printPreparation(newRecipeList);
+
+            /*
 	        unitList.Sort();
 
 			foreach (resultPiece unit in unitList)
 			{
 				Console.WriteLine(unit.Name + ' ' + unit.Count);
-			}              */              ingredientList.Sort();             foreach (resultPiece ingredient in ingredientList)             {                 Console.WriteLine(ingredient.Name + '~' + ingredient.Count);             }         }          public static string getAmount(string ingredient, ref string remainingIngredient)         {             if (remainingIngredient.Contains(' '))
+			}
+
+            */
+
+            ingredientList.Sort();
+            foreach (resultPiece ingredient in ingredientList)
+            {
+                Console.WriteLine(ingredient.Name + '~' + ingredient.Count);
+            }
+        }
+
+        public static string getAmount(string ingredient, ref string remainingIngredient)
+        {
+            if (remainingIngredient.Contains(' '))
             {
 
                 remainingIngredient = ingredient.Substring(ingredient.IndexOf(' '));
-                remainingIngredient = remainingIngredient.Trim(' ');              }             return ingredient.Split(' ')[0];         }          public static string getUnit(ref string amount, ref string remainingIngredient)         {                           //quit if this recipe contains no more words             if (!remainingIngredient.Contains(' '))             {                 return null;             }              string unit = remainingIngredient.Split(' ')[0];                           //if the unit begins with a digit then we know that it is the amount continuing (e.g. 1 1/2)             if (unit.ElementAt(0).ToString().Any(char.IsDigit)                  && unit.Length > 0                                 && string.Compare(unit.ElementAtOrDefault(1).ToString(), "/", StringComparison.CurrentCulture) == 0)             {                 amount = amount + ' ' + unit; //append unit to amount                  //Get remaining part of string                 remainingIngredient = remainingIngredient.Substring(remainingIngredient.IndexOf(' '));                 remainingIngredient = remainingIngredient.Trim(' ');                 unit = remainingIngredient.Split(' ')[0]; //update unit to next work             }
-             //check to see if the unit is one of the ones we know about
+                remainingIngredient = remainingIngredient.Trim(' ');
+
+            }
+            return ingredient.Split(' ')[0];
+        }
+
+        public static string getUnit(ref string amount, ref string remainingIngredient)
+        {
+            
+
+            //quit if this recipe contains no more words
+            if (!remainingIngredient.Contains(' '))
+            {
+                return null;
+            }
+
+            string unit = remainingIngredient.Split(' ')[0];
+
+            
+            //if the unit begins with a digit then we know that it is the amount continuing (e.g. 1 1/2)
+            if (unit.ElementAt(0).ToString().Any(char.IsDigit) 
+                && unit.Length > 0                
+                && string.Compare(unit.ElementAtOrDefault(1).ToString(), "/", StringComparison.CurrentCulture) == 0)
+            {
+                amount = amount + ' ' + unit; //append unit to amount
+
+                //Get remaining part of string
+                remainingIngredient = remainingIngredient.Substring(remainingIngredient.IndexOf(' '));
+                remainingIngredient = remainingIngredient.Trim(' ');
+                unit = remainingIngredient.Split(' ')[0]; //update unit to next work
+            }
+
+            //check to see if the unit is one of the ones we know about
             if (acceptableUnitsObj.AcceptableUnitList.Contains(unit)){
 				remainingIngredient = remainingIngredient.Substring(remainingIngredient.IndexOf(' '));
-				remainingIngredient = remainingIngredient.Trim();             }              else              {                 unit = null;             }              return unit;          }          public static string getIngredientAndPreparation(ref string remainingIngredient, string preparation)         {             string actualIngredient = null;
+				remainingIngredient = remainingIngredient.Trim();
+            } 
+            else 
+            {
+                unit = null;
+            }
+
+            return unit;
+
+        }
+
+        public static string getIngredientAndPreparation(ref string remainingIngredient, string preparation)
+        {
+            string actualIngredient = null;
 
 			if (remainingIngredient.Contains(','))
 			{
@@ -28,12 +119,55 @@ using System; using System.Collections.Generic; using System.IO; using Sys
 			{
 				actualIngredient = remainingIngredient;
 
-			}               return actualIngredient;         }           public static List<newIngredient> parseIngredients(Recipe recipe)         {              List<newIngredient> newIngredientList = new List<newIngredient>();             foreach (string ingredient in recipe.Ingredients){
-                 //if the first character is not a digit then we'll make the full line an ingredient                 //TODO add a function inside this instead to also handle non digit quantities?                 //Structure: [ingredient]                 if (!ingredient.ElementAt(0).ToString().Any(char.IsDigit))                 {                     createNewIngredient(ref newIngredientList, null, null, ingredient, null);                     continue;                  } 
+			}
+
+
+            return actualIngredient;
+        }
+
+
+        public static List<newIngredient> parseIngredients(Recipe recipe)
+        {
+
+            List<newIngredient> newIngredientList = new List<newIngredient>();
+            foreach (string ingredient in recipe.Ingredients){
+
+                //if the first character is not a digit then we'll make the full line an ingredient
+                //TODO add a function inside this instead to also handle non digit quantities?
+                //Structure: [ingredient]
+                if (!ingredient.ElementAt(0).ToString().Any(char.IsDigit))
+                {
+                    createNewIngredient(ref newIngredientList, null, null, ingredient, null);
+                    continue;
+
+                }
+
                 //[Amount] [Unit] [Ingredient],[Preparation]
                 //First split out the amount
                 string remainingIngredient = ingredient;
-                string amount = getAmount(ingredient, ref remainingIngredient);   				//Get the next piece, the unit                 string unit = getUnit(ref amount, ref remainingIngredient);   				//Get remaining part of string 				string preparation = null;                  string actualIngredient = getIngredientAndPreparation(ref remainingIngredient, preparation);                  createNewIngredient(ref newIngredientList, amount, unit, actualIngredient, preparation);               }              return newIngredientList;          }          public static void createNewIngredient(ref List<newIngredient> newIngredientList, string amount, string unit, string actualIngredient, string preparation)         {
+                string amount = getAmount(ingredient, ref remainingIngredient);
+
+
+				//Get the next piece, the unit
+                string unit = getUnit(ref amount, ref remainingIngredient);
+
+
+				//Get remaining part of string
+				string preparation = null;
+
+                string actualIngredient = getIngredientAndPreparation(ref remainingIngredient, preparation);
+
+                createNewIngredient(ref newIngredientList, amount, unit, actualIngredient, preparation);
+
+
+            }
+
+            return newIngredientList;
+
+        }
+
+        public static void createNewIngredient(ref List<newIngredient> newIngredientList, string amount, string unit, string actualIngredient, string preparation)
+        {
 
 			newIngredient newIngredientToAdd = new newIngredient();
 			newIngredientToAdd.Name = actualIngredient;
@@ -41,7 +175,97 @@ using System; using System.Collections.Generic; using System.IO; using Sys
 			newIngredientToAdd.Quantity = amount;
 			newIngredientToAdd.Unit = unit;
 
-			newIngredientList.Add(newIngredientToAdd);         }          public static void readFromFile(List<Recipe> newRecipeList, int numRecipes)         {                using (StreamReader r = new StreamReader("/Users/scottkrepsky/Documents/CS Classes/CS-564/Final Project/Recipe Parser/full_format_recipes.json"))             {                    string data = r.ReadToEnd();                 //Recipe recipe = JsonConvert.DeserializeObject<Recipe>(data);                 List<Recipe> recipeList = JsonConvert.DeserializeObject<List<Recipe>>(data);                  foreach (Recipe recipe in recipeList)                 {                     //Parse out ingredients                     List<newIngredient> newIngredientList = parseIngredients(recipe);                     recipe.NewIngredientList = newIngredientList;                       newRecipeList.Add(recipe);                       if (newRecipeList.Count >= numRecipes){                         break;                     }                   }              }         }          public static void printQuantity(List<Recipe> newRecipeList)         {             foreach (Recipe recipe in newRecipeList)             {                 foreach (newIngredient newIngredient in recipe.NewIngredientList)                 {                      Console.WriteLine("Quantity: " + newIngredient.Quantity + '\t' + '\t' + '|' + newIngredient.FullList);                 }             }         }          public static void printAndCreateUnitList(List<Recipe> newRecipeList, List<resultPiece> unitList)         {             foreach (Recipe recipe in newRecipeList)             {                  foreach (newIngredient newIngredient in recipe.NewIngredientList)                 {                     Console.WriteLine("Unit: " + newIngredient.Unit + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);                      bool stop = false;                     foreach (resultPiece unit in unitList)                     {                         if (String.Compare(unit.Name, newIngredient.Unit) == 0)                         {                             unit.Count++;                             stop = true;                             break;                         }                     }                      if (stop == false)                     {                         resultPiece unit = new resultPiece(newIngredient.Unit);                         unit.Count++;                         unitList.Add(unit);                      }                    }              }          }         public static void printIngredients(List<Recipe> newRecipeList, List<resultPiece> ingredientList)         {                foreach (Recipe recipe in newRecipeList)             {                 foreach (newIngredient newIngredient in recipe.NewIngredientList)                 {                     Console.WriteLine("Ingredient: " + newIngredient.Name + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
+			newIngredientList.Add(newIngredientToAdd);
+        }
+
+        public static void readFromFile(List<Recipe> newRecipeList, int numRecipes)
+        {
+               using (StreamReader r = new StreamReader("/Users/scottkrepsky/Documents/CS Classes/CS-564/Final Project/Recipe Parser/full_format_recipes.json"))
+            {
+
+
+
+                string data = r.ReadToEnd();
+                //Recipe recipe = JsonConvert.DeserializeObject<Recipe>(data);
+                List<Recipe> recipeList = JsonConvert.DeserializeObject<List<Recipe>>(data);
+
+                foreach (Recipe recipe in recipeList)
+                {
+                    //Parse out ingredients
+                    List<newIngredient> newIngredientList = parseIngredients(recipe);
+                    recipe.NewIngredientList = newIngredientList;
+
+
+                    newRecipeList.Add(recipe);
+
+
+                    if (newRecipeList.Count >= numRecipes){
+                        break;
+                    }
+
+
+                }
+
+            }
+        }
+
+        public static void printQuantity(List<Recipe> newRecipeList)
+        {
+            foreach (Recipe recipe in newRecipeList)
+            {
+                foreach (newIngredient newIngredient in recipe.NewIngredientList)
+                {
+
+                    Console.WriteLine("Quantity: " + newIngredient.Quantity + '\t' + '\t' + '|' + newIngredient.FullList);
+                }
+            }
+        }
+
+        public static void printAndCreateUnitList(List<Recipe> newRecipeList, List<resultPiece> unitList)
+        {
+            foreach (Recipe recipe in newRecipeList)
+            {
+
+                foreach (newIngredient newIngredient in recipe.NewIngredientList)
+                {
+                    Console.WriteLine("Unit: " + newIngredient.Unit + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
+
+                    bool stop = false;
+                    foreach (resultPiece unit in unitList)
+                    {
+                        if (String.Compare(unit.Name, newIngredient.Unit) == 0)
+                        {
+                            unit.Count++;
+                            stop = true;
+                            break;
+                        }
+                    }
+
+                    if (stop == false)
+                    {
+                        resultPiece unit = new resultPiece(newIngredient.Unit);
+                        unit.Count++;
+                        unitList.Add(unit);
+
+                    }
+
+
+
+                }
+
+            }
+
+        }
+        public static void printIngredients(List<Recipe> newRecipeList, List<resultPiece> ingredientList)
+        {
+
+
+
+            foreach (Recipe recipe in newRecipeList)
+            {
+                foreach (newIngredient newIngredient in recipe.NewIngredientList)
+                {
+                    Console.WriteLine("Ingredient: " + newIngredient.Name + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
 
 					bool stop = false;
 					foreach (resultPiece ingredient in ingredientList)
@@ -60,4 +284,26 @@ using System; using System.Collections.Generic; using System.IO; using Sys
 						ingredient.Count++;
 						ingredientList.Add(ingredient);
 
-					}                                  }               }          }          public static void printPreparation(List<Recipe> newRecipeList)         {             foreach (Recipe recipe in newRecipeList)             {                 foreach (newIngredient newIngredient in recipe.NewIngredientList)                 {                     Console.WriteLine("Preparation: " + newIngredient.Preparation + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);                 }             }         }     }  }  
+					}
+                
+                }
+
+
+            }
+
+        }
+
+        public static void printPreparation(List<Recipe> newRecipeList)
+        {
+            foreach (Recipe recipe in newRecipeList)
+            {
+                foreach (newIngredient newIngredient in recipe.NewIngredientList)
+                {
+                    Console.WriteLine("Preparation: " + newIngredient.Preparation + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
+                }
+            }
+        }
+    }
+
+}
+
