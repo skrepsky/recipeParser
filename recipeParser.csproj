@@ -42,7 +42,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\Recipe.cs" />
     <Compile Include="Classes\newIngredient.cs" />
-    <Compile Include="Classes\UnitResult.cs" />
+    <Compile Include="Classes\resultPiece.cs" />
+    <Compile Include="Classes\AcceptableUnits.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
