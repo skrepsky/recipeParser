@@ -5,7 +5,7 @@ namespace recipeParser.Classes
 {
     public class AcceptableUnits
     {
-
+        
         public AcceptableUnits()
         {
 
