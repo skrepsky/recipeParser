@@ -108,6 +108,9 @@ namespace recipeParser.Classes
 
             AcceptableUnitList.Add("bag");
             AcceptableUnitList.Add("bags");
+
+            AcceptableUnitList.Add("ear");
+            AcceptableUnitList.Add("ears");
         }
 
         public List<string> AcceptableUnitList

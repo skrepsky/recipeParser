@@ -44,6 +44,7 @@
     <Compile Include="Classes\newIngredient.cs" />
     <Compile Include="Classes\resultPiece.cs" />
     <Compile Include="Classes\AcceptableUnits.cs" />
+    <Compile Include="Classes\printFunctions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Classes\" />

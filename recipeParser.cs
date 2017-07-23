@@ -9,11 +9,14 @@ using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using recipeParser.Classes;
 
+
+
 namespace recipeParser
 {
 
     public class MainClass
     {
+        public static string fileRoot = "/Users/scottkrepsky/Documents/CS Classes/CS-564/Final Project/Recipe Parser";
 
         public static AcceptableUnits acceptableUnitsObj;
 
@@ -25,17 +28,17 @@ namespace recipeParser
             List<Recipe> newRecipeList = new List<Recipe>();
             readFromFile(newRecipeList, 1075);
 
-            printQuantity(newRecipeList);
+			//printQuantity(newRecipeList);
 
-            //Create Unit List for analysis
-            List<resultPiece> unitList = new List<resultPiece>();
-            printAndCreateUnitList(newRecipeList, unitList);
+			//Create Unit List for analysis
+			//List<resultPiece> unitList = new List<resultPiece>();
+			//printAndCreateUnitList(newRecipeList, unitList);
 
-            List<resultPiece> ingredientList = new List<resultPiece>();
-            printIngredients(newRecipeList, ingredientList);
-            printPreparation(newRecipeList);
+			//List<resultPiece> ingredientList = new List<resultPiece>();
+			//printIngredients(newRecipeList, ingredientList);
+			//printPreparation(newRecipeList);
 
-            /*
+			/*
 	        unitList.Sort();
 
 			foreach (resultPiece unit in unitList)
@@ -44,12 +47,38 @@ namespace recipeParser
 			}
 
             */
-
+			/*
             ingredientList.Sort();
             foreach (resultPiece ingredient in ingredientList)
             {
                 Console.WriteLine(ingredient.Name + '~' + ingredient.Count);
             }
+            */
+
+			// Write the string to a file.
+            System.IO.StreamWriter file = new System.IO.StreamWriter(Path.Combine(fileRoot, "IngredientFile.txt"));
+
+            foreach (Recipe recipe in newRecipeList){
+
+                foreach (newIngredient ingredient in recipe.NewIngredientList){
+
+                    file.WriteLine(ingredient.Quantity + "|" + ingredient.Unit +
+                                  "|" + ingredient.Name + "|" +
+                                  ingredient.Preparation);
+
+                }
+
+
+				
+
+				
+
+
+
+            }
+
+            file.Close();
+
         }
 
         public static string getAmount(string ingredient, ref string remainingIngredient)
@@ -104,7 +133,7 @@ namespace recipeParser
 
         }
 
-        public static string getIngredientAndPreparation(ref string remainingIngredient, string preparation)
+        public static string getIngredientAndPreparation(ref string remainingIngredient, ref string preparation)
         {
             string actualIngredient = null;
 
@@ -155,7 +184,7 @@ namespace recipeParser
 				//Get remaining part of string
 				string preparation = null;
 
-                string actualIngredient = getIngredientAndPreparation(ref remainingIngredient, preparation);
+                string actualIngredient = getIngredientAndPreparation(ref remainingIngredient, ref preparation);
 
                 createNewIngredient(ref newIngredientList, amount, unit, actualIngredient, preparation);
 
@@ -209,101 +238,6 @@ namespace recipeParser
             }
         }
 
-        public static void printQuantity(List<Recipe> newRecipeList)
-        {
-            foreach (Recipe recipe in newRecipeList)
-            {
-                foreach (newIngredient newIngredient in recipe.NewIngredientList)
-                {
-
-                    Console.WriteLine("Quantity: " + newIngredient.Quantity + '\t' + '\t' + '|' + newIngredient.FullList);
-                }
-            }
-        }
-
-        public static void printAndCreateUnitList(List<Recipe> newRecipeList, List<resultPiece> unitList)
-        {
-            foreach (Recipe recipe in newRecipeList)
-            {
-
-                foreach (newIngredient newIngredient in recipe.NewIngredientList)
-                {
-                    Console.WriteLine("Unit: " + newIngredient.Unit + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
-
-                    bool stop = false;
-                    foreach (resultPiece unit in unitList)
-                    {
-                        if (String.Compare(unit.Name, newIngredient.Unit) == 0)
-                        {
-                            unit.Count++;
-                            stop = true;
-                            break;
-                        }
-                    }
-
-                    if (stop == false)
-                    {
-                        resultPiece unit = new resultPiece(newIngredient.Unit);
-                        unit.Count++;
-                        unitList.Add(unit);
-
-                    }
-
-
-
-                }
-
-            }
-
-        }
-        public static void printIngredients(List<Recipe> newRecipeList, List<resultPiece> ingredientList)
-        {
-
-
-
-            foreach (Recipe recipe in newRecipeList)
-            {
-                foreach (newIngredient newIngredient in recipe.NewIngredientList)
-                {
-                    Console.WriteLine("Ingredient: " + newIngredient.Name + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
-
-					bool stop = false;
-					foreach (resultPiece ingredient in ingredientList)
-					{
-						if (String.Compare(ingredient.Name, newIngredient.Name) == 0)
-						{
-							ingredient.Count++;
-							stop = true;
-							break;
-						}
-					}
-
-					if (stop == false)
-					{
-						resultPiece ingredient = new resultPiece(newIngredient.Name);
-						ingredient.Count++;
-						ingredientList.Add(ingredient);
-
-					}
-                
-                }
-
-
-            }
-
-        }
-
-        public static void printPreparation(List<Recipe> newRecipeList)
-        {
-            foreach (Recipe recipe in newRecipeList)
-            {
-                foreach (newIngredient newIngredient in recipe.NewIngredientList)
-                {
-                    Console.WriteLine("Preparation: " + newIngredient.Preparation + '\t' + '\t' + '\t' + '|' + newIngredient.FullList);
-                }
-            }
-        }
-    }
-
+	}
 }
 
